@@ -13,10 +13,9 @@ const app = new PIXI.Application({resizeTo: window});
 
 await app.init();
 document.body.appendChild(app.view)
-console.log(app.renderer);
-if(!app.renderer){
-    return;
-}
+// if(!app.renderer){
+//     return;
+// }
 app.renderer.resize(window.innerWidth, window.innerHeight);
 app.view.style.position = "absolute";
 
@@ -39,6 +38,7 @@ handle.setSize(door.width / 2.95, door.height / 2.44);
 handleShadow.setSize(door.width / 2.95, door.height / 2.44);
 handle.x = (door.width / 2.18) - (handle.width / 2);
 handle.y = (door.height / 2) - (handle.height / 2);
+handle.interactive = true;
 handleShadow.x = (door.width / 2.14) - (handle.width / 2);
 handleShadow.y = (door.height / 1.95) - (handle.height / 2);
 container.addChild(handleShadow);
@@ -48,7 +48,8 @@ container.x = (app.view.width / 1.96) - (container.width / 2);
 container.y = (app.view.height / 2.068) - (container.height / 2);
 
 app.stage.addChild(container);
-function tick(delta){ 
+function tick(delta: number){ 
+    console.log("hi");
 }
 
 })();
