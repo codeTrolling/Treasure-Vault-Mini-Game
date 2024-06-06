@@ -1,10 +1,12 @@
 // this is the file we need when compiling the ts file. uncomment when building the project.
-//import * as PIXI from "../node_modules/pixi.js/dist/pixi.min.mjs";
+import * as PIXI from "../node_modules/pixi.js/dist/pixi.min.mjs";
 // this has a declaration file. use this when developing
-import * as PIXI from "./node_modules/pixi.js/dist/pixi.js";
+//import * as PIXI from "./node_modules/pixi.js/dist/pixi.js";
 
 const app = new PIXI.Application({resizeTo: window});
 
+let handleRotation: number = 0;
+let targetRotation = handleRotation;
 
 //random pixi.js problem? or am I missing something here? I need to await for app.init() but you can't await in the main top level function. This is the workaround I found
 (async () => {
@@ -39,13 +41,23 @@ const handleShadow = PIXI.Sprite.from("./assets/handleShadow.png");
 
 handle.setSize(door.width / 2.95, door.height / 2.44);
 handleShadow.setSize(door.width / 2.95, door.height / 2.44);
-handle.x = (door.width / 2.18) - (handle.width / 2);
-handle.y = (door.height / 2) - (handle.height / 2);
+handle.x = (door.width / 2.18);
+handle.y = (door.height / 2);
+handle.anchor.set(0.5, 0.5);
 handle.interactive = true;
 
-handleShadow.x = (door.width / 2.14) - (handle.width / 2);
-handleShadow.y = (door.height / 1.95) - (handle.height / 2);
+handleShadow.x = (door.width / 2.14);
+handleShadow.y = (door.height / 1.95);
+handleShadow.anchor.set(0.5, 0.5);
 
+handle.on('pointerdown', (e) => {
+    if(e.clientX < handle.getGlobalPosition().x ){
+        rotateHandle(-(Math.PI / 3), handle, handleShadow);
+    }
+    else{
+        rotateHandle(Math.PI / 3, handle, handleShadow);
+    }
+})
 
 container.addChild(handleShadow);
 container.addChild(handle);
@@ -59,3 +71,44 @@ function tick(delta: number){
 }
 
 })();
+
+
+function rotateHandle(rot: number, handle: PIXI.Sprite, handleShadow: PIXI.Sprite){
+    targetRotation = handleRotation + rot + (targetRotation - handleRotation);
+    let startRotation = handleRotation;
+
+    //using promise instead of setInterval due to bonus points requirements
+    // there's something happening here that I don't know about. I think pixi.js's update function doesn't grab these values while the promise is still pending.
+    // let p = new Promise((resolve, reject) => {
+    //     let timer = Date.now() - 10;
+    //     while(true){
+    //         if(timer <= Date.now()){
+    //             handle.rotation += 0.1 * rot;
+    //             handleShadow.rotation += 0.1 * rot;
+    //             handleRotation += 0.1 * rot;
+    //             timer = Date.now() + 20;
+    //         }
+
+    //         if((startRotation < targetRotation && handleRotation >= targetRotation) || (startRotation > targetRotation && handleRotation <= targetRotation)){
+    //             handle.rotation = targetRotation;
+    //             handleShadow.rotation = targetRotation;
+    //             handleRotation = targetRotation;
+    //             resolve(1);
+    //             break;
+    //         }
+    //     }
+    // })
+
+    let interval = setInterval(()=>{
+        handle.rotation += 0.1 * rot;
+        handleShadow.rotation += 0.1 * rot;
+        handleRotation += 0.1 * rot;
+        console.log(handleRotation, targetRotation)
+        if((startRotation < targetRotation && handleRotation >= targetRotation) || (startRotation > targetRotation && handleRotation <= targetRotation)){
+            handle.rotation = targetRotation;
+            handleShadow.rotation = targetRotation;
+            handleRotation = targetRotation;
+            clearInterval(interval);
+        }
+    }, 20)
+}
