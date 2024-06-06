@@ -1,7 +1,7 @@
 // this is the file we need when compiling the ts file. uncomment when building the project.
-import * as PIXI from "../node_modules/pixi.js/dist/pixi.min.mjs";
+//import * as PIXI from "../node_modules/pixi.js/dist/pixi.min.mjs";
 // this has a declaration file. use this when developing
-//import * as PIXI from "./node_modules/pixi.js/dist/pixi.js";
+import * as PIXI from "./node_modules/pixi.js/dist/pixi.js";
 
 const app = new PIXI.Application({resizeTo: window});
 
