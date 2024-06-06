@@ -18,9 +18,8 @@ let targetRotation = handleRotation;
 
 await app.init();
 document.body.appendChild(app.view)
-// if(!app.renderer){
-//     return;
-// }
+let code = generateCode();
+
 app.renderer.resize(window.innerWidth, window.innerHeight);
 app.view.style.position = "absolute";
 
@@ -111,4 +110,20 @@ function rotateHandle(rot: number, handle: PIXI.Sprite, handleShadow: PIXI.Sprit
             clearInterval(interval);
         }
     }, 20)
+}
+
+
+
+type Pair = [number, string];
+function generateCode(): Set<Pair>{
+
+    let code = new Set<Pair>();
+    for(let i = 0; i < 100; i++){
+        let dir = Math.random() > 0.5 ? "clockwise" : "counterclockwise";
+        let num = Math.floor(Math.random() * 9 + 1);
+        code.add([num, dir]);
+    }
+    console.log(code);
+
+    return code;
 }
