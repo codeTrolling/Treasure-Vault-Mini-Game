@@ -13,6 +13,11 @@ let currentPair: Pair;
 let pairIndex: number;
 let currentRotationNumber: number;
 
+let timer: Array<number> = [0, 0];
+let timerInterval: number;
+
+const timerText: PIXI.Text = new PIXI.Text("0:00");
+
 (async () => {
     // not best practice but should be fine for 7 images
     await PIXI.Assets.load(["./assets/bg.png", "./assets/blink.png", "./assets/door.png", "./assets/doorOpen.png",
@@ -37,6 +42,11 @@ backgroundImage.width = app.view.width;
 backgroundImage.height = app.view.height;
 app.stage.addChild(backgroundImage);
 
+timerText.x = backgroundImage.width / 3.46;
+timerText.y = backgroundImage.height / 2.275;
+timerText.style.fill = "white";
+timerText.style.fontSize = (backgroundImage.width * 0.013) + "px";
+app.stage.addChild(timerText);
 
 const container = new PIXI.Container();
 const door = PIXI.Sprite.from("./assets/door.png");
@@ -58,7 +68,7 @@ handleShadow.x = (door.width / 2.14);
 handleShadow.y = (door.height / 1.95);
 handleShadow.anchor.set(0.5, 0.5);
 
-handle.on('pointerdown', (e) => {
+handle.on('pointerdown', (e: PointerEvent) => {
     if(e.clientX < handle.getGlobalPosition().x ){
         if(currentRotationNumber < currentPair[0] && currentPair[1] === "counterclockwise"){
             rotateHandle(-(Math.PI / 3), handle, handleShadow);
@@ -121,6 +131,7 @@ function checkGameState(){
             handleShadow.visible = false;
             doorOpen.visible = true;
             doorOpenShadow.visible = true;
+            clearInterval(timerInterval);
             setTimeout(() => {
                 door.visible = true;
                 handle.visible = true;
@@ -194,5 +205,24 @@ function generateCode(): Array<Pair>{
     }
     console.log(generatedCode);
 
+    startTimer();
+
     return generatedCode;
+}
+
+function startTimer(){
+    if(timerInterval){
+        clearInterval(timerInterval);
+    }
+    timer[0] = 0;
+    timer[1] = 0;
+    timerText.text = "0:00";
+    timerInterval = setInterval(()=>{
+        timer[1]++;
+        if(timer[1] > 59){
+            timer[0]++;
+            timer[1] = 0;
+        }
+        timerText.text = `${timer[0]}:${timer[1] > 9 ? timer[1] : '0' + timer[1]}`;
+    }, 1000)
 }
