@@ -8,6 +8,11 @@ const app = new PIXI.Application({resizeTo: window});
 let handleRotation: number = 0;
 let targetRotation = handleRotation;
 
+let code: Array<Pair>;
+let currentPair: Pair;
+let pairIndex: number;
+let currentRotationNumber: number;
+
 //random pixi.js problem? or am I missing something here? I need to await for app.init() but you can't await in the main top level function. This is the workaround I found
 (async () => {
     // not best practice but should be fine for 7 images
@@ -17,8 +22,13 @@ let targetRotation = handleRotation;
     
 
 await app.init();
+handleRotation = 0;
+targetRotation = 0;
 document.body.appendChild(app.view)
-let code = generateCode();
+code = generateCode();
+pairIndex = 0;
+currentPair = code[pairIndex];
+currentRotationNumber = 0;
 
 app.renderer.resize(window.innerWidth, window.innerHeight);
 app.view.style.position = "absolute";
@@ -51,10 +61,24 @@ handleShadow.anchor.set(0.5, 0.5);
 
 handle.on('pointerdown', (e) => {
     if(e.clientX < handle.getGlobalPosition().x ){
-        rotateHandle(-(Math.PI / 3), handle, handleShadow);
+        if(currentRotationNumber < currentPair[0] && currentPair[1] === "counterclockwise"){
+            rotateHandle(-(Math.PI / 3), handle, handleShadow);
+            currentRotationNumber++;
+            checkGameState();
+        }
+        else{
+            restartGame(-1);
+        }
     }
     else{
-        rotateHandle(Math.PI / 3, handle, handleShadow);
+        if(currentRotationNumber < currentPair[0] && currentPair[1] === "clockwise"){
+            rotateHandle(Math.PI / 3, handle, handleShadow);
+            currentRotationNumber++;
+            checkGameState();
+        }
+        else{
+            restartGame(1);
+        }
     }
 })
 
@@ -69,10 +93,19 @@ function tick(delta: number){
     console.log("hi");
 }
 
+function restartGame(rotDir: number){
+    rotateHandle(Math.PI * 2 * rotDir, handle, handleShadow, true);
+    code = generateCode();
+    currentPair = code[0];
+    pairIndex = 0;
+    currentRotationNumber = 0;
+
+}
+
 })();
 
 
-function rotateHandle(rot: number, handle: PIXI.Sprite, handleShadow: PIXI.Sprite){
+function rotateHandle(rot: number, handle: PIXI.Sprite, handleShadow: PIXI.Sprite, rs: boolean = false){
     targetRotation = handleRotation + rot + (targetRotation - handleRotation);
     let startRotation = handleRotation;
 
@@ -102,8 +135,8 @@ function rotateHandle(rot: number, handle: PIXI.Sprite, handleShadow: PIXI.Sprit
         handle.rotation += 0.1 * rot;
         handleShadow.rotation += 0.1 * rot;
         handleRotation += 0.1 * rot;
-        console.log(handleRotation, targetRotation)
-        if((startRotation < targetRotation && handleRotation >= targetRotation) || (startRotation > targetRotation && handleRotation <= targetRotation)){
+        if((startRotation <= targetRotation && handleRotation >= targetRotation) || (startRotation >= targetRotation && handleRotation <= targetRotation)){
+            if(rs){targetRotation = 0;}
             handle.rotation = targetRotation;
             handleShadow.rotation = targetRotation;
             handleRotation = targetRotation;
@@ -115,15 +148,29 @@ function rotateHandle(rot: number, handle: PIXI.Sprite, handleShadow: PIXI.Sprit
 
 
 type Pair = [number, string];
-function generateCode(): Set<Pair>{
+function generateCode(): Array<Pair>{
 
-    let code = new Set<Pair>();
-    for(let i = 0; i < 100; i++){
+    let generatedCode = new Array<Pair>();
+    for(let i = 0; i < 3; i++){
         let dir = Math.random() > 0.5 ? "clockwise" : "counterclockwise";
         let num = Math.floor(Math.random() * 9 + 1);
-        code.add([num, dir]);
+        generatedCode.push([num, dir]);
     }
-    console.log(code);
+    console.log(generatedCode);
 
-    return code;
+    return generatedCode;
+}
+
+
+function checkGameState(){
+    if(currentRotationNumber == currentPair[0]){
+        if(pairIndex == 2){
+            // win
+        }
+        else{
+            pairIndex++;
+            currentPair = code[pairIndex];
+            currentRotationNumber = 0;
+        }
+    }
 }
