@@ -1,4 +1,7 @@
-import * as PIXI from "./node_modules/pixi.js/dist/pixi.min.mjs";
+// this is the file we need when compiling the ts file. uncomment when building the project.
+//import * as PIXI from "../node_modules/pixi.js/dist/pixi.min.mjs";
+// this has a declaration file. use this when developing
+import * as PIXI from "./node_modules/pixi.js/dist/pixi.js";
 
 const app = new PIXI.Application({resizeTo: window});
 
@@ -39,8 +42,11 @@ handleShadow.setSize(door.width / 2.95, door.height / 2.44);
 handle.x = (door.width / 2.18) - (handle.width / 2);
 handle.y = (door.height / 2) - (handle.height / 2);
 handle.interactive = true;
+
 handleShadow.x = (door.width / 2.14) - (handle.width / 2);
 handleShadow.y = (door.height / 1.95) - (handle.height / 2);
+
+
 container.addChild(handleShadow);
 container.addChild(handle);
 
