@@ -42,6 +42,27 @@ backgroundImage.width = app.view.width;
 backgroundImage.height = app.view.height;
 app.stage.addChild(backgroundImage);
 
+
+const glow1 = PIXI.Sprite.from("./assets/blink.png");
+const glow2 = PIXI.Sprite.from("./assets/blink.png");
+const glow3 = PIXI.Sprite.from("./assets/blink.png");
+glow1.setSize(backgroundImage.width / 11.257, backgroundImage.height / 5.63);
+glow2.setSize(backgroundImage.width / 11.257, backgroundImage.height / 5.63);
+glow3.setSize(backgroundImage.width / 11.257, backgroundImage.height / 5.63);
+
+glow1.x = backgroundImage.width / 2.7;
+glow1.y = backgroundImage.height / 2.5;
+
+glow2.x = backgroundImage.width / 2.27;
+glow2.y = backgroundImage.height / 2.48;
+
+glow3.x = backgroundImage.width / 2.07;
+glow3.y = backgroundImage.height / 1.9;
+app.stage.addChild(glow1);
+app.stage.addChild(glow2);
+app.stage.addChild(glow3);
+
+
 timerText.x = backgroundImage.width / 3.46;
 timerText.y = backgroundImage.height / 2.275;
 timerText.style.fill = "white";
