@@ -13,7 +13,6 @@ let currentPair: Pair;
 let pairIndex: number;
 let currentRotationNumber: number;
 
-//random pixi.js problem? or am I missing something here? I need to await for app.init() but you can't await in the main top level function. This is the workaround I found
 (async () => {
     // not best practice but should be fine for 7 images
     await PIXI.Assets.load(["./assets/bg.png", "./assets/blink.png", "./assets/door.png", "./assets/doorOpen.png",
@@ -88,10 +87,21 @@ container.addChild(handle);
 container.x = (app.view.width / 1.96) - (container.width / 2);
 container.y = (app.view.height / 2.068) - (container.height / 2);
 
+
+const doorOpen = PIXI.Sprite.from('./assets/doorOpen.png')
+const doorOpenShadow = PIXI.Sprite.from('./assets/doorOpenShadow.png')
+doorOpen.setSize(backgroundImage.width / 4.82, backgroundImage.height / 1.67);
+doorOpen.x = (door.getGlobalPosition().x + door.width) - doorOpen.width * 0.2;
+doorOpen.y = door.getGlobalPosition().y;
+doorOpenShadow.setSize(backgroundImage.width / 4.82, backgroundImage.height / 1.67);
+doorOpenShadow.x = door.getGlobalPosition().x + door.width  - doorOpen.width * 0.13;
+doorOpenShadow.y = door.getGlobalPosition().y * 1.05;
+doorOpen.visible = false;
+doorOpenShadow.visible = false;
+app.stage.addChild(doorOpenShadow);
+app.stage.addChild(doorOpen);
+
 app.stage.addChild(container);
-function tick(delta: number){ 
-    console.log("hi");
-}
 
 function restartGame(rotDir: number){
     rotateHandle(Math.PI * 2 * rotDir, handle, handleShadow, true);
@@ -102,6 +112,32 @@ function restartGame(rotDir: number){
 
 }
 
+
+function checkGameState(){
+    if(currentRotationNumber == currentPair[0]){
+        if(pairIndex == 2){
+            door.visible = false;
+            handle.visible = false;
+            handleShadow.visible = false;
+            doorOpen.visible = true;
+            doorOpenShadow.visible = true;
+            setTimeout(() => {
+                door.visible = true;
+                handle.visible = true;
+                handleShadow.visible = true;
+                doorOpen.visible = false;
+                doorOpenShadow.visible = false;
+                restartGame(1);
+            }, 5000)
+        }
+        else{
+            pairIndex++;
+            currentPair = code[pairIndex];
+            currentRotationNumber = 0;
+        }
+    }
+}
+
 })();
 
 
@@ -110,7 +146,7 @@ function rotateHandle(rot: number, handle: PIXI.Sprite, handleShadow: PIXI.Sprit
     let startRotation = handleRotation;
 
     //using promise instead of setInterval due to bonus points requirements
-    // there's something happening here that I don't know about. I think pixi.js's update function doesn't grab these values while the promise is still pending.
+    // there's something happening here that I don't know about.
     // let p = new Promise((resolve, reject) => {
     //     let timer = Date.now() - 10;
     //     while(true){
@@ -159,18 +195,4 @@ function generateCode(): Array<Pair>{
     console.log(generatedCode);
 
     return generatedCode;
-}
-
-
-function checkGameState(){
-    if(currentRotationNumber == currentPair[0]){
-        if(pairIndex == 2){
-            // win
-        }
-        else{
-            pairIndex++;
-            currentPair = code[pairIndex];
-            currentRotationNumber = 0;
-        }
-    }
 }
